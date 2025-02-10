@@ -55,6 +55,7 @@ message UserSettings {
 ```
 
 package structure:
+
 ![](/screenshots/001.png)
 
 ## Usage

@@ -1,0 +1,17 @@
+syntax = "proto3";
+import "me/mantou/common/common.proto";
+package me.mantou.client;
+
+option java_package = "me.mantou.client";
+option java_outer_classname = "ClientProto";
+option java_multiple_files = true;
+
+message UserSettings{
+  common.User user = 1;
+  repeated string ranks = 2;
+  map<string, Setting> settings = 3;
+
+  message Setting{
+    string value = 1;
+  }
+}

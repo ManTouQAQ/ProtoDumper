@@ -1,0 +1,10 @@
+syntax = "proto3";
+package me.mantou.server;
+
+option java_package = "me.mantou.server";
+option java_outer_classname = "ServerProto";
+option java_multiple_files = true;
+
+message ServerInfo{
+  string motd = 1;
+}

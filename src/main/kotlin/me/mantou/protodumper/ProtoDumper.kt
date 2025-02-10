@@ -180,7 +180,6 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
                     LABEL_REQUIRED -> "required "
                 }
             }
-            //TODO 类型修正
             writeWithIndent(" ".repeat(tabLength) + label + statement)
             fieldNumber++
         }

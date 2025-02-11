@@ -11,6 +11,12 @@ message UserSettings{
   repeated string ranks = 2;
   map<string, Setting> settings = 3;
 
+  oneof Payload{
+    string s = 4;
+    int32 i = 5;
+    bool b = 6;
+  }
+
   message Setting{
     string value = 1;
   }

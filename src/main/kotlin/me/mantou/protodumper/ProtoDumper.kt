@@ -7,6 +7,7 @@ import com.google.protobuf.Descriptors.Descriptor
 import com.google.protobuf.Descriptors.EnumDescriptor
 import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.Descriptors.GenericDescriptor
+import com.google.protobuf.Descriptors.OneofDescriptor
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes
@@ -132,6 +133,10 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
         writer.write("option java_multiple_files = ${options.javaMultipleFiles};\n")
     }
 
+    private fun writeOneof(writer: BufferedWriter, descriptor: OneofDescriptor, spaceCount: Int = 0) {
+
+    }
+
     private fun writeEnum(writer: BufferedWriter, descriptor: EnumDescriptor, spaceCount: Int = 0) {
 
         fun writeWithIndent(text: String) {
@@ -158,6 +163,7 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
 
         // 写入字段
         var fieldNumber = 1
+        var oneofCount = 0
         for (field in descriptor.fields) {
             val type = when (field.type.javaType!!) {
                 Descriptors.FieldDescriptor.JavaType.INT -> "int32"
@@ -180,7 +186,21 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
                     LABEL_REQUIRED -> "required "
                 }
             }
-            writeWithIndent(" ".repeat(tabLength) + label + statement)
+
+            if (field.containingOneof != null) {
+                if (oneofCount == 0) {
+                    writeWithIndent(" ".repeat(tabLength) + "oneof ${field.containingOneof.name} {\n")
+                }
+                writeWithIndent(" ".repeat(tabLength * 2) + label + statement)
+                oneofCount++
+                if (oneofCount == field.containingOneof.fieldCount) {
+                    writeWithIndent(" ".repeat(tabLength) + "}\n")
+                    oneofCount = 0
+                }
+            } else {
+                writeWithIndent(" ".repeat(tabLength) + label + statement)
+                oneofCount = 0
+            }
             fieldNumber++
         }
 

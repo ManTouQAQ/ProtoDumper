@@ -90,3 +90,6 @@ protoDumper.addNeedDumpClass(YourProto::class.java)
 protoDumper.addNeedDumpClass("com.example.OtherProto")
 protoDumper.dumpTo(Path.of("output"))
 ```
+
+## TODO
+- gRpc resolver

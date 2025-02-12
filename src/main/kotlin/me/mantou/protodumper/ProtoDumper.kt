@@ -2,13 +2,11 @@ package me.mantou.protodumper
 
 import com.google.protobuf.DescriptorProtos.FieldDescriptorProto.Label.*
 import com.google.protobuf.DescriptorProtos.FileOptions
-import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.Descriptor
 import com.google.protobuf.Descriptors.EnumDescriptor
 import com.google.protobuf.Descriptors.FieldDescriptor.Type.*
 import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.Descriptors.GenericDescriptor
-import com.google.protobuf.Descriptors.OneofDescriptor
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.Opcodes
@@ -124,18 +122,15 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
 
     private fun writeDependencies(writer: BufferedWriter, descriptor: FileDescriptor) {
         descriptor.dependencies.forEach {
-            writer.write("import \"${it.name}\";\n\n")
+            writer.write("import \"${it.name}\";\n")
         }
     }
 
     private fun writeOption(writer: BufferedWriter, options: FileOptions) {
+        writer.newLine()
         writer.write("option java_package = \"${options.javaPackage}\";\n")
         writer.write("option java_outer_classname = \"${options.javaOuterClassname}\";\n")
         writer.write("option java_multiple_files = ${options.javaMultipleFiles};\n")
-    }
-
-    private fun writeOneof(writer: BufferedWriter, descriptor: OneofDescriptor, spaceCount: Int = 0) {
-
     }
 
     private fun writeEnum(writer: BufferedWriter, descriptor: EnumDescriptor, spaceCount: Int = 0) {
@@ -146,8 +141,8 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
 
         writeWithIndent("enum ${descriptor.name} {\n")
 
-        for ((fieldNumber, field) in descriptor.values.withIndex()) {
-            writeWithIndent(" ".repeat(tabLength) + "${field.name} = $fieldNumber;\n")
+        for (field in descriptor.values) {
+            writeWithIndent(" ".repeat(tabLength) + "${field.name} = ${field.number};\n")
         }
 
         writeWithIndent("}\n")
@@ -163,7 +158,6 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
         writeWithIndent("message ${descriptor.name} {\n")
 
         // 写入字段
-        var fieldNumber = 1
         var oneofCount = 0
         for (field in descriptor.fields) {
             val type = when (field.type) {
@@ -172,7 +166,7 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
                 ENUM -> field.enumType.fullName
                 else -> field.type.name.lowercase()
             }
-            val statement = "$type ${field.name} = $fieldNumber;\n"
+            val statement = "$type ${field.name} = ${field.number};\n"
 
             var label = ""
             if (field.toProto().hasLabel()) {
@@ -185,9 +179,13 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
 
             if (field.containingOneof != null) {
                 if (oneofCount == 0) {
+                    if (field.containingOneof.fieldCount == 1){
+                        writeWithIndent(" ".repeat(tabLength) + "optional " + statement)
+                        continue
+                    }
                     writeWithIndent(" ".repeat(tabLength) + "oneof ${field.containingOneof.name} {\n")
                 }
-                writeWithIndent(" ".repeat(tabLength * 2) + label + statement)
+                writeWithIndent(" ".repeat(tabLength * 2) + statement)
                 oneofCount++
                 if (oneofCount == field.containingOneof.fieldCount) {
                     writeWithIndent(" ".repeat(tabLength) + "}\n")
@@ -197,7 +195,6 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
                 writeWithIndent(" ".repeat(tabLength) + label + statement)
                 oneofCount = 0
             }
-            fieldNumber++
         }
 
         var needNewLine = true

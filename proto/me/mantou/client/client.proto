@@ -17,6 +17,8 @@ message UserSettings{
     bool b = 6;
   }
 
+  optional string desc = 7;
+
   message Setting{
     string value = 1;
   }

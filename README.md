@@ -28,6 +28,8 @@ message UserSettings{
     bool b = 6;
   }
 
+  optional string desc = 7;
+
   message Setting{
     string value = 1;
   }
@@ -81,6 +83,7 @@ message UserSettings {
     int32 i = 5;
     bool b = 6;
   }
+  optional string desc = 7;
 
   message SettingsEntry {
     string key = 1;

@@ -5,6 +5,7 @@ import com.google.protobuf.DescriptorProtos.FileOptions
 import com.google.protobuf.Descriptors
 import com.google.protobuf.Descriptors.Descriptor
 import com.google.protobuf.Descriptors.EnumDescriptor
+import com.google.protobuf.Descriptors.FieldDescriptor.Type.*
 import com.google.protobuf.Descriptors.FileDescriptor
 import com.google.protobuf.Descriptors.GenericDescriptor
 import com.google.protobuf.Descriptors.OneofDescriptor
@@ -165,16 +166,11 @@ class ProtoDumper(private val file: File? = null, private val tabLength: Int = 4
         var fieldNumber = 1
         var oneofCount = 0
         for (field in descriptor.fields) {
-            val type = when (field.type.javaType!!) {
-                Descriptors.FieldDescriptor.JavaType.INT -> "int32"
-                Descriptors.FieldDescriptor.JavaType.LONG -> "int64"
-                Descriptors.FieldDescriptor.JavaType.STRING -> "string"
-                Descriptors.FieldDescriptor.JavaType.BOOLEAN -> "bool"
-                Descriptors.FieldDescriptor.JavaType.FLOAT -> "float"
-                Descriptors.FieldDescriptor.JavaType.ENUM -> field.enumType.fullName
-                Descriptors.FieldDescriptor.JavaType.BYTE_STRING -> "bytes"
-                Descriptors.FieldDescriptor.JavaType.MESSAGE -> field.messageType.fullName
-                Descriptors.FieldDescriptor.JavaType.DOUBLE -> "double"
+            val type = when (field.type) {
+                GROUP -> field.messageType.fullName
+                MESSAGE -> field.messageType.fullName
+                ENUM -> field.enumType.fullName
+                else -> field.type.name.lowercase()
             }
             val statement = "$type ${field.name} = $fieldNumber;\n"
 

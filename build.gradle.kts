@@ -16,8 +16,8 @@ dependencies {
     implementation("com.google.protobuf:protobuf-java:4.28.2")
 
     protobuf(files("proto/"))
-    testProtobuf(files("proto/"))
-    testProtobuf(files("output/"))
+//    testProtobuf(files("proto/"))
+//    testProtobuf(files("output/"))
 }
 
 tasks.test {

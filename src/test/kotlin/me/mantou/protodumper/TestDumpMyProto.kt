@@ -6,7 +6,7 @@ import me.mantou.server.ServerProto
 import org.junit.jupiter.api.Test
 import java.nio.file.Path
 
-class TestDumper {
+class TestDumpMyProto {
     @Test
     fun testDump() {
         val protoDumper = ProtoDumper()
